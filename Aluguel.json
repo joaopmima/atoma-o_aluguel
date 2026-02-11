@@ -1,0 +1,1593 @@
+{
+  "name": "Aluguel",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1936,
+        272
+      ],
+      "id": "0c995883-b0e6-4a02-89bf-85d4618ea7d4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd7159c3-ce74-49de-a317-015ed4b99501",
+              "name": "ano_atual",
+              "value": "={{ $json.Year }}",
+              "type": "string"
+            },
+            {
+              "id": "295b1dee-d0c2-4ef4-b205-88588681a743",
+              "name": "Month",
+              "value": "={{ $json.Month }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1728,
+        272
+      ],
+      "id": "1322ece8-393c-42fa-8a55-0f02c391e815",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const feriados = $input.first().json.data_feriado\n\nconst hoje = new Date();\nconst ano = hoje.getFullYear();\nconst mes = hoje.getMonth(); // 0 = janeiro\n\n// função para verificar se é dia útil\nfunction isDiaUtil(data) {\n  const dia = data.getDay();\n  const strData = data.toISOString().split('T')[0];\n  return dia !== 0 && dia !== 6 && !feriados.includes(strData);\n}\n\n// calcular o 4º dia útil do mês\nlet diaUtilCount = 0;\nlet diaAtual = new Date(ano, mes, 1);\nlet quartoDiaUtil;\n\nwhile (diaAtual.getMonth() === mes) {\n  if (isDiaUtil(diaAtual)) {\n    diaUtilCount++;\n    if (diaUtilCount === 4) {\n      quartoDiaUtil = diaAtual;\n      break;\n    }\n  }\n  diaAtual.setDate(diaAtual.getDate() + 1);\n}\n\n// verificar se hoje é o 4º dia útil\nif (hoje.toDateString() === quartoDiaUtil.toDateString()) {\n  return [{ json: { disparar: true } }];\n} else {\n  return [{ json: { disparar: false } }];\n}\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        272
+      ],
+      "id": "f29fab0b-9c60-4292-85aa-e7023e3b0d46",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "83ff9f2d-42d5-45c8-9071-acb9372f65e4",
+              "name": "data_feriado",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1280,
+        272
+      ],
+      "id": "6b12b6d3-d8b8-4046-861d-3d367b48b79e",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select DATA_VENDA\n\t, sum(valor_venda_bruta) 'Total venda Bruta'\n\t, sum(valor_troca) 'Total devolução'\nfrom loja_venda\nwhere codigo_filial = '{{ $json['Codigo loja '] }}'\n\tand DATA_VENDA >= '20250101' \n\tand DATA_VENDA <= '20250131' \ngroup by DATA_VENDA\norder by data_venda asc\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "25bbf82c-0fe6-47f7-857a-27156206046b",
+      "name": "Microsoft SQL",
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftSql": {
+          "id": "8rguz0R8o0fp0CrE",
+          "name": "SQL IB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://date.nager.at/api/v3/PublicHolidays/{{ $json.ano_atual }}/BR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1504,
+        272
+      ],
+      "id": "c6cd2199-0c8a-4cba-8fe3-7439ebdc3684",
+      "name": "API para consultar feriados",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e17b2c0-f2a7-41e8-8ab4-e2d54818489f",
+              "name": "Data_venda",
+              "value": "={{ ($json.DATA_VENDA.toDateTime()).format('yyyy-MM-dd')}}",
+              "type": "string"
+            },
+            {
+              "id": "8db8586a-cfe2-49a2-b691-b93c7bfc2dcf",
+              "name": "Venda bruta",
+              "value": "={{ $json['Total venda Bruta'] }}",
+              "type": "number"
+            },
+            {
+              "id": "ea4e7f91-c24b-4338-bc5b-eeff19de191a",
+              "name": "Devolução",
+              "value": "={{ $json['Total devolução'] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        224
+      ],
+      "id": "3245d803-08dd-4319-9979-a20c15af94bc",
+      "name": "Edit Fields3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI",
+          "mode": "list",
+          "cachedResultName": "Aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1891679128,
+          "mode": "list",
+          "cachedResultName": "manter dados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit#gid=1891679128"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $json.Data_venda }}",
+            "Venda bruta": "={{ $json['Venda bruta'] }}",
+            "Devolução": "={{ $json['Devolução'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Venda bruta",
+              "displayName": "Venda bruta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Devolução",
+              "displayName": "Devolução",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        224
+      ],
+      "id": "69b8c7c9-2071-4640-bc5d-f45dfa30ed2f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cff148e3-605a-4c98-870c-6a1ee101e7bc",
+              "leftValue": "={{ $json.disparar }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -816,
+        272
+      ],
+      "id": "7dff064f-1fd4-4a05-af54-c98e08bcd747",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const meses = [\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"]\n\nlet mesAtual = $('Edit Fields').first().json.Month\n\nif(mesAtual == meses[3] || mesAtual == meses[2] || mesAtual == meses[5] || mesAtual == meses[8] || mesAtual == meses[10]){\n  return [{json : {dia : 30}}]\n}\nelse if (mesAtual == meses[1]){\n  return [{json : {dia : 28}}]\n}\n\nelse{\n  return [{json : {dia : 31}}]\n}\n\nreturn $('Edit Fields').first().json.Month\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        -1600
+      ],
+      "id": "87c28116-b522-49f3-83c2-7e6ddf5966fd",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "joaopedro.mlima9@gmail.com",
+        "toEmail": "joaopedro.mlima9@gmail.com",
+        "subject": "=Aluguel da {{ $('Edit Fields5').item.json['Nome da loja'] }}",
+        "html": "=Bom dia!\n\n<br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
+        "options": {
+          "appendAttribution": false,
+          "attachments": "data"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1936,
+        224
+      ],
+      "id": "5a71aa8e-6737-4963-9137-ecfdca1f6aa3",
+      "name": "Send email",
+      "webhookId": "02be35b7-c737-459f-9bd2-9947d1e54c55",
+      "credentials": {
+        "smtp": {
+          "id": "cAL0FtZL8kQWPeYe",
+          "name": "Credencial E-mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI",
+          "mode": "list",
+          "cachedResultName": "Aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1891679128,
+          "mode": "list",
+          "cachedResultName": "manter dados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit#gid=1891679128"
+        },
+        "clear": "specificRange",
+        "range": "A2:C32"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        224
+      ],
+      "id": "6d3ee2f4-d82b-466a-bb25-43cbc0f816a0",
+      "name": "Clear sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "119b44b2-89eb-4538-9424-472eeca59b77",
+              "name": "URL arquivo anexo",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "7ddd99c7-1ec6-4c0a-9021-673bf390ff3a",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        224
+      ],
+      "id": "dd8b665f-be38-4f16-993a-e1d1cfb8526e",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "files",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        224
+      ],
+      "id": "70e4758d-4f6a-4c03-acc7-7cea329628e5",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        224
+      ],
+      "id": "714c315a-c6db-44ae-8579-6d77c89f85b1",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "name = 'Aluguel' and mimeType = 'application/vnd.google-apps.spreadsheet'"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name,webViewLink)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        848,
+        224
+      ],
+      "id": "f93fc1cd-e47c-41a2-83aa-45415a0d40b2",
+      "name": "Pega ID e o Link do arquivo",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "I4fhlQza0y1XAD4w",
+          "name": "API google drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/export",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "mimeType",
+              "value": "=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1712,
+        224
+      ],
+      "id": "a9685a78-7423-47ea-b84c-c9c7ab98f593",
+      "name": "Busca o arquivo",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "I4fhlQza0y1XAD4w",
+          "name": "API google drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select codigo_filial\n\t, FILIAL\n\t, EMAIL_SUPERVISOR\nfrom GSF_LOJAS_DIRETORIA\nwhere LOJA_RUA = '0' \n\tand filial like 'RC39%'\n\tor filial = 'INBRANDS - PREMIUM RJ'\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        -1808
+      ],
+      "id": "efaa0fa9-ff7d-41ce-9bf6-50ef3517f1c8",
+      "name": "Microsoft SQL3",
+      "credentials": {
+        "microsoftSql": {
+          "id": "8rguz0R8o0fp0CrE",
+          "name": "SQL IB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8",
+          "mode": "list",
+          "cachedResultName": "Lojas que cobram aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Lojas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Codigo loja ": "={{ $json.codigo_filial }}",
+            "Nome da loja": "={{ $json.FILIAL }}",
+            "E-mail supervisor ": "={{ $json.EMAIL_SUPERVISOR }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Codigo loja ",
+              "displayName": "Codigo loja ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nome da loja",
+              "displayName": "Nome da loja",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "E-mail supervisor ",
+              "displayName": "E-mail supervisor ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        -1808
+      ],
+      "id": "0f99cb9f-87ba-4fea-b5a7-f072a9b47bba",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8",
+          "mode": "list",
+          "cachedResultName": "Lojas que cobram aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Lojas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -480,
+        32
+      ],
+      "id": "5cad6b32-75f7-42b6-911d-e6c0ba66bc36",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        32
+      ],
+      "id": "c594d127-4c24-43ec-bc37-111b3235e004",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "## Código para fazer  a query para retornar os valor de venda bruta e devolução\n\nselect DATA_VENDA\n\t, sum(valor_venda_bruta) 'Total venda Bruta'\n\t, sum(valor_troca) 'Total devolução'\nfrom loja_venda\nwhere codigo_filial = 'BS0004'\n\tand year(DATA_VENDA) = case when month(GETDATE()) = 1 then year(getDate())-1 else year(getDate()) end   \n\tand month(DATA_VENDA) = case when month(GETDATE()) = 1 then 12 else month(GETDATE()) - 1 end \ngroup by DATA_VENDA\norder by data_venda asc\n\n",
+        "height": 304,
+        "width": 816
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -688
+      ],
+      "id": "f94a2e1f-a603-4153-afee-3ac989aa1aa7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9c3bbe6-1329-4745-a83d-8bb5d42ab604",
+              "name": "Codigo loja ",
+              "value": "={{ $json['Codigo loja '] }}",
+              "type": "string"
+            },
+            {
+              "id": "e54fa128-b43f-438a-88c6-b4ffb2aca18e",
+              "name": "Nome da loja",
+              "value": "={{ $json['Nome da loja'] }}",
+              "type": "string"
+            },
+            {
+              "id": "be96a26f-223f-48cf-b39b-f8fa5e1f3e77",
+              "name": "E-mail supervisor ",
+              "value": "={{ $json['E-mail supervisor '] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        224
+      ],
+      "id": "cc127f80-173f-44e9-b955-af1176d7bb78",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "content": "## Consulta se é feriado ",
+        "height": 240,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1568,
+        192
+      ],
+      "id": "8f0542c5-54eb-4e19-9b6e-56e8e802db6f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Código que verifica se esta no 4º dia util\n ",
+        "height": 240,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        160
+      ],
+      "id": "f7eb8ff9-1a9a-497c-8db6-f7ca5b038e6e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8",
+          "mode": "list",
+          "cachedResultName": "Lojas que cobram aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2011546770,
+          "mode": "list",
+          "cachedResultName": "Lojas banco TH",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit#gid=2011546770"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -480,
+        608
+      ],
+      "id": "59beffef-ca68-479f-ad04-ba7e0441f2ce",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select DATA_VENDA\n\t, sum(valor_venda_bruta) 'Total venda Bruta'\n\t, sum(valor_troca) 'Total devolução'\nfrom loja_venda\nwhere codigo_filial = '{{ $json['Codigo loja '] }}'\n\tand DATA_VENDA >= '20250101' \n\tand DATA_VENDA <= '20250131' \ngroup by DATA_VENDA\norder by data_venda asc\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        800
+      ],
+      "id": "201ae068-d462-4150-996a-2ce75787a13c",
+      "name": "Microsoft SQL1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftSql": {
+          "id": "OkN54iV2AMtgjIYk",
+          "name": "SQL TH"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e17b2c0-f2a7-41e8-8ab4-e2d54818489f",
+              "name": "Data_venda",
+              "value": "={{ ($json.DATA_VENDA.toDateTime()).format('yyyy-MM-dd')}}",
+              "type": "string"
+            },
+            {
+              "id": "8db8586a-cfe2-49a2-b691-b93c7bfc2dcf",
+              "name": "Venda bruta",
+              "value": "={{ $json['Total venda Bruta'] }}",
+              "type": "number"
+            },
+            {
+              "id": "ea4e7f91-c24b-4338-bc5b-eeff19de191a",
+              "name": "Devolução",
+              "value": "={{ $json['Total devolução'] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        800
+      ],
+      "id": "66da4456-ebf2-4196-a4f4-8b3639305c1b",
+      "name": "Edit Fields4",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI",
+          "mode": "list",
+          "cachedResultName": "Aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1891679128,
+          "mode": "list",
+          "cachedResultName": "manter dados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit#gid=1891679128"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $json.Data_venda }}",
+            "Venda bruta": "={{ $json['Venda bruta'] }}",
+            "Devolução": "={{ $json['Devolução'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Venda bruta",
+              "displayName": "Venda bruta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Devolução",
+              "displayName": "Devolução",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        800
+      ],
+      "id": "9e86cef3-3137-4ab3-b10f-48f9015ea164",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "joaopedro.mlima9@gmail.com",
+        "toEmail": "joaopedro.mlima9@gmail.com",
+        "subject": "=Aluguel da {{ $('Edit Fields7').item.json['Nome da loja'] }}",
+        "html": "=Bom dia!\n\n<br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
+        "options": {
+          "appendAttribution": false,
+          "attachments": "data"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1936,
+        800
+      ],
+      "id": "b044c165-e262-46f4-8bf5-1d850794ced5",
+      "name": "Send email2",
+      "webhookId": "02be35b7-c737-459f-9bd2-9947d1e54c55",
+      "credentials": {
+        "smtp": {
+          "id": "cAL0FtZL8kQWPeYe",
+          "name": "Credencial E-mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI",
+          "mode": "list",
+          "cachedResultName": "Aluguel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1891679128,
+          "mode": "list",
+          "cachedResultName": "manter dados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17eNWuCZeIfZGWvaBbdaaGf-AOq077uKt80Uz87khuyI/edit#gid=1891679128"
+        },
+        "clear": "specificRange",
+        "range": "A2:C32"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2144,
+        800
+      ],
+      "id": "a46da87e-7a2f-49f6-98a8-cad945fcd731",
+      "name": "Clear sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sUNRrZy9VSndkdeJ",
+          "name": "API sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "119b44b2-89eb-4538-9424-472eeca59b77",
+              "name": "URL arquivo anexo",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "7ddd99c7-1ec6-4c0a-9021-673bf390ff3a",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        800
+      ],
+      "id": "99c54798-91bf-4f63-9341-f64e589232de",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "files",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        800
+      ],
+      "id": "d9af87bd-48b4-40a4-a1a2-92ecaa72e70f",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        800
+      ],
+      "id": "2f02ee99-f0d3-46df-a75e-363aa97c0659",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "name = 'Aluguel' and mimeType = 'application/vnd.google-apps.spreadsheet'"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name,webViewLink)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        848,
+        800
+      ],
+      "id": "adfca164-69ab-4fd8-80f9-413449b83f57",
+      "name": "Pega ID e o Link do arquivo1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "I4fhlQza0y1XAD4w",
+          "name": "API google drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/export",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "mimeType",
+              "value": "=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1712,
+        800
+      ],
+      "id": "36465423-2e67-454d-986a-f34bc2bea34b",
+      "name": "Busca o arquivo1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "I4fhlQza0y1XAD4w",
+          "name": "API google drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -256,
+        608
+      ],
+      "id": "d40078c1-2abf-46fc-85f0-ecd367aaba9b",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9c3bbe6-1329-4745-a83d-8bb5d42ab604",
+              "name": "Codigo loja ",
+              "value": "={{ $json['Codigo loja '] }}",
+              "type": "string"
+            },
+            {
+              "id": "e54fa128-b43f-438a-88c6-b4ffb2aca18e",
+              "name": "Nome da loja",
+              "value": "={{ $json['Nome da loja'] }}",
+              "type": "string"
+            },
+            {
+              "id": "be96a26f-223f-48cf-b39b-f8fa5e1f3e77",
+              "name": "E-mail supervisor ",
+              "value": "={{ $json['E-mail supervisor '] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -48,
+        800
+      ],
+      "id": "ffb78600-ec2f-4c1c-ab12-b6311f375896",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "fromEmail": "joaopedro.mlima9@gmail.com",
+        "toEmail": "joaopedro.mlima9@gmail.com",
+        "subject": "Alguel de lojas ",
+        "html": "O aluguel das filiais já foi enviado ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        480
+      ],
+      "id": "bd149e52-c9e5-447e-8c12-b2b3569049bd",
+      "name": "Send email3",
+      "webhookId": "1eb4a079-8009-472c-868b-cfc01da9967e",
+      "credentials": {
+        "smtp": {
+          "id": "cAL0FtZL8kQWPeYe",
+          "name": "Credencial E-mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Pega informações das filiais ",
+        "height": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -64
+      ],
+      "id": "79f4d534-57df-4940-a138-48aafe368a6e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Pega as informações de venda bruta e devolução no mês.\n",
+        "height": 880,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        80
+      ],
+      "id": "649d708f-7a98-4f26-b75d-f8f78671f69d",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Pega o ID do arquivo no google drive  ",
+        "height": 832,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        784,
+        112
+      ],
+      "id": "02782522-d929-44c1-b518-64f112fbbba6",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Faz o Dowload do drive para anexar no e-mail.",
+        "height": 832,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        96
+      ],
+      "id": "b656dd2c-f183-4e01-8a6e-a6148b7ecfe4",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "API para consultar feriados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft SQL": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API para consultar feriados": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Pega ID e o Link do arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        []
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Busca o arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega ID e o Link do arquivo": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca o arquivo": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft SQL3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Microsoft SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft SQL1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Pega ID e o Link do arquivo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email2": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Busca o arquivo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega ID e o Link do arquivo1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca o arquivo1": {
+      "main": [
+        [
+          {
+            "node": "Send email2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Send email3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Microsoft SQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c975f9f7-b30d-4246-9797-66e5622ade40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c9ac0336281178410ae1caf9c0c4bc6510509f0f05a469f30c634bd9ecc77f35"
+  },
+  "id": "Ks5xdnTg-KJtrDDLIlQwj",
+  "tags": [
+    {
+      "updatedAt": "2026-02-10T01:45:20.214Z",
+      "createdAt": "2026-02-10T01:45:20.214Z",
+      "id": "v48g6gNjIwancaTM",
+      "name": "Aluguel"
+    }
+  ]
+}
