@@ -14,10 +14,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -1936,
-        272
+        -1280,
+        2080
       ],
-      "id": "0c995883-b0e6-4a02-89bf-85d4618ea7d4",
+      "id": "b1041d3c-3314-4bee-939f-5befbd365208",
       "name": "Schedule Trigger"
     },
     {
@@ -43,10 +43,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1728,
-        272
+        -1072,
+        2080
       ],
-      "id": "1322ece8-393c-42fa-8a55-0f02c391e815",
+      "id": "07bd3d67-5ab8-467e-846f-936bf4687dff",
       "name": "Edit Fields"
     },
     {
@@ -56,10 +56,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1040,
-        272
+        -384,
+        2080
       ],
-      "id": "f29fab0b-9c60-4292-85aa-e7023e3b0d46",
+      "id": "d8057d40-fbd9-41f0-bf0c-c37e838702bc",
       "name": "Code in JavaScript"
     },
     {
@@ -79,10 +79,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1280,
-        272
+        -624,
+        2080
       ],
-      "id": "6b12b6d3-d8b8-4046-861d-3d367b48b79e",
+      "id": "9348bb4d-a2e5-4103-ba3d-8dc952205b41",
       "name": "Edit Fields1"
     },
     {
@@ -93,16 +93,16 @@
       "type": "n8n-nodes-base.microsoftSql",
       "typeVersion": 1.1,
       "position": [
-        224,
-        224
+        880,
+        2032
       ],
-      "id": "25bbf82c-0fe6-47f7-857a-27156206046b",
+      "id": "befca809-aeec-488c-aa02-9191ff920214",
       "name": "Microsoft SQL",
       "alwaysOutputData": true,
       "credentials": {
         "microsoftSql": {
-          "id": "8rguz0R8o0fp0CrE",
-          "name": "SQL IB"
+          "id": "KtBQ1uO6JMALaFpK",
+          "name": "Banco IB"
         }
       }
     },
@@ -114,10 +114,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1504,
-        272
+        -848,
+        2080
       ],
-      "id": "c6cd2199-0c8a-4cba-8fe3-7439ebdc3684",
+      "id": "d997f068-2538-47ca-8c6f-e4295a593399",
       "name": "API para consultar feriados",
       "retryOnFail": true,
       "maxTries": 5
@@ -151,10 +151,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        432,
-        224
+        1088,
+        2032
       ],
-      "id": "3245d803-08dd-4319-9979-a20c15af94bc",
+      "id": "ada1d100-8780-4d26-a361-11f9896fd929",
       "name": "Edit Fields3",
       "alwaysOutputData": true
     },
@@ -220,15 +220,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        640,
-        224
+        1296,
+        2032
       ],
-      "id": "69b8c7c9-2071-4640-bc5d-f45dfa30ed2f",
+      "id": "7415784b-f34f-4583-b288-c2784ec23508",
       "name": "Append row in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -259,51 +259,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -816,
-        272
+        -160,
+        2080
       ],
-      "id": "7dff064f-1fd4-4a05-af54-c98e08bcd747",
+      "id": "64e2b4fc-160a-43f1-8961-4c2514df1ab7",
       "name": "If"
-    },
-    {
-      "parameters": {
-        "jsCode": "const meses = [\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"]\n\nlet mesAtual = $('Edit Fields').first().json.Month\n\nif(mesAtual == meses[3] || mesAtual == meses[2] || mesAtual == meses[5] || mesAtual == meses[8] || mesAtual == meses[10]){\n  return [{json : {dia : 30}}]\n}\nelse if (mesAtual == meses[1]){\n  return [{json : {dia : 28}}]\n}\n\nelse{\n  return [{json : {dia : 31}}]\n}\n\nreturn $('Edit Fields').first().json.Month\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -1008,
-        -1600
-      ],
-      "id": "87c28116-b522-49f3-83c2-7e6ddf5966fd",
-      "name": "Code in JavaScript1"
-    },
-    {
-      "parameters": {
-        "fromEmail": "joaopedro.mlima9@gmail.com",
-        "toEmail": "joaopedro.mlima9@gmail.com",
-        "subject": "=Aluguel da {{ $('Edit Fields5').item.json['Nome da loja'] }}",
-        "html": "=Bom dia!\n\n<br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
-        "options": {
-          "appendAttribution": false,
-          "attachments": "data"
-        }
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        1936,
-        224
-      ],
-      "id": "5a71aa8e-6737-4963-9137-ecfdca1f6aa3",
-      "name": "Send email",
-      "webhookId": "02be35b7-c737-459f-9bd2-9947d1e54c55",
-      "credentials": {
-        "smtp": {
-          "id": "cAL0FtZL8kQWPeYe",
-          "name": "Credencial E-mail"
-        }
-      }
     },
     {
       "parameters": {
@@ -328,15 +288,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        2160,
-        224
+        2816,
+        2032
       ],
-      "id": "6d3ee2f4-d82b-466a-bb25-43cbc0f816a0",
+      "id": "db69da4b-97b3-4baa-a756-dc35213dd595",
       "name": "Clear sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -364,10 +324,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1488,
-        224
+        2144,
+        2032
       ],
-      "id": "dd8b665f-be38-4f16-993a-e1d1cfb8526e",
+      "id": "4ae72ba5-bee5-44c5-8977-73c8985bf77b",
       "name": "Edit Fields2"
     },
     {
@@ -378,10 +338,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1056,
-        224
+        1712,
+        2032
       ],
-      "id": "70e4758d-4f6a-4c03-acc7-7cea329628e5",
+      "id": "06198fed-6e49-47d4-9782-69a595f18822",
       "name": "Split Out"
     },
     {
@@ -391,10 +351,10 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        1264,
-        224
+        1920,
+        2032
       ],
-      "id": "714c315a-c6db-44ae-8579-6d77c89f85b1",
+      "id": "6ccb691f-3edf-4cd7-b2d1-ed01577b687b",
       "name": "Limit"
     },
     {
@@ -420,15 +380,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        848,
-        224
+        1504,
+        2032
       ],
-      "id": "f93fc1cd-e47c-41a2-83aa-45415a0d40b2",
+      "id": "e48b0848-b495-4618-b5b4-3314620cf493",
       "name": "Pega ID e o Link do arquivo",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "I4fhlQza0y1XAD4w",
-          "name": "API google drive"
+          "id": "RBxsHzyyYEpOuiLu",
+          "name": "Google Drive account"
         }
       }
     },
@@ -455,109 +415,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1712,
-        224
+        2368,
+        2032
       ],
-      "id": "a9685a78-7423-47ea-b84c-c9c7ab98f593",
+      "id": "4d9715dc-492c-4ec3-a32a-308fe84f4e5a",
       "name": "Busca o arquivo",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "I4fhlQza0y1XAD4w",
-          "name": "API google drive"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "select codigo_filial\n\t, FILIAL\n\t, EMAIL_SUPERVISOR\nfrom GSF_LOJAS_DIRETORIA\nwhere LOJA_RUA = '0' \n\tand filial like 'RC39%'\n\tor filial = 'INBRANDS - PREMIUM RJ'\n"
-      },
-      "type": "n8n-nodes-base.microsoftSql",
-      "typeVersion": 1.1,
-      "position": [
-        -656,
-        -1808
-      ],
-      "id": "efaa0fa9-ff7d-41ce-9bf6-50ef3517f1c8",
-      "name": "Microsoft SQL3",
-      "credentials": {
-        "microsoftSql": {
-          "id": "8rguz0R8o0fp0CrE",
-          "name": "SQL IB"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8",
-          "mode": "list",
-          "cachedResultName": "Lojas que cobram aluguel",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Lojas",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xwhOhRohRHQA4ad5GR47gI_xb86iEP8lNQoou14mDE8/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Codigo loja ": "={{ $json.codigo_filial }}",
-            "Nome da loja": "={{ $json.FILIAL }}",
-            "E-mail supervisor ": "={{ $json.EMAIL_SUPERVISOR }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "Codigo loja ",
-              "displayName": "Codigo loja ",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "Nome da loja",
-              "displayName": "Nome da loja",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "E-mail supervisor ",
-              "displayName": "E-mail supervisor ",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        -448,
-        -1808
-      ],
-      "id": "0f99cb9f-87ba-4fea-b5a7-f072a9b47bba",
-      "name": "Append row in sheet3",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "RBxsHzyyYEpOuiLu",
+          "name": "Google Drive account"
         }
       }
     },
@@ -582,15 +448,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -480,
-        32
+        176,
+        1840
       ],
-      "id": "5cad6b32-75f7-42b6-911d-e6c0ba66bc36",
+      "id": "bac87cb4-725b-46df-a762-9ceabfdd8ddc",
       "name": "Get row(s) in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -601,10 +467,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -240,
-        32
+        416,
+        1840
       ],
-      "id": "c594d127-4c24-43ec-bc37-111b3235e004",
+      "id": "006dda8c-7a9a-459e-9f20-94d42e59dab8",
       "name": "Loop Over Items"
     },
     {
@@ -616,10 +482,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        800,
-        -688
+        1456,
+        1120
       ],
-      "id": "f94a2e1f-a603-4153-afee-3ac989aa1aa7",
+      "id": "444cbf9b-d458-434b-84a1-90d179b288a4",
       "name": "Sticky Note"
     },
     {
@@ -651,10 +517,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -32,
-        224
+        624,
+        2032
       ],
-      "id": "cc127f80-173f-44e9-b955-af1176d7bb78",
+      "id": "4fcfd62f-7308-4c3e-afce-434014c2ae19",
       "name": "Edit Fields5"
     },
     {
@@ -666,10 +532,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -1568,
-        192
+        -912,
+        2000
       ],
-      "id": "8f0542c5-54eb-4e19-9b6e-56e8e802db6f",
+      "id": "2aad90fc-1349-4389-b829-c6e396093952",
       "name": "Sticky Note1"
     },
     {
@@ -681,10 +547,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -1104,
-        160
+        -448,
+        1968
       ],
-      "id": "f7eb8ff9-1a9a-497c-8db6-f7ca5b038e6e",
+      "id": "477bea91-8331-404a-a338-a798e8895ae0",
       "name": "Sticky Note2"
     },
     {
@@ -708,15 +574,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -480,
-        608
+        176,
+        2416
       ],
-      "id": "59beffef-ca68-479f-ad04-ba7e0441f2ce",
+      "id": "6a1e2417-34c0-4bcf-b0a0-81039e62914a",
       "name": "Get row(s) in sheet1",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -728,16 +594,16 @@
       "type": "n8n-nodes-base.microsoftSql",
       "typeVersion": 1.1,
       "position": [
-        208,
-        800
+        864,
+        2608
       ],
-      "id": "201ae068-d462-4150-996a-2ce75787a13c",
+      "id": "97bba25f-29df-45c5-bdbb-23000d987ff5",
       "name": "Microsoft SQL1",
       "alwaysOutputData": true,
       "credentials": {
         "microsoftSql": {
-          "id": "OkN54iV2AMtgjIYk",
-          "name": "SQL TH"
+          "id": "UkgZstSJ5Wj9ofPE",
+          "name": "Banco TH"
         }
       }
     },
@@ -770,10 +636,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        416,
-        800
+        1072,
+        2608
       ],
-      "id": "66da4456-ebf2-4196-a4f4-8b3639305c1b",
+      "id": "0c8ec83e-2ebf-4f3c-bc79-6b048e8153f9",
       "name": "Edit Fields4",
       "alwaysOutputData": true
     },
@@ -839,42 +705,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        640,
-        800
+        1296,
+        2608
       ],
-      "id": "9e86cef3-3137-4ab3-b10f-48f9015ea164",
+      "id": "c4ffad00-5de9-4aa6-9976-461fb26f021f",
       "name": "Append row in sheet1",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "fromEmail": "joaopedro.mlima9@gmail.com",
-        "toEmail": "joaopedro.mlima9@gmail.com",
-        "subject": "=Aluguel da {{ $('Edit Fields7').item.json['Nome da loja'] }}",
-        "html": "=Bom dia!\n\n<br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
-        "options": {
-          "appendAttribution": false,
-          "attachments": "data"
-        }
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        1936,
-        800
-      ],
-      "id": "b044c165-e262-46f4-8bf5-1d850794ced5",
-      "name": "Send email2",
-      "webhookId": "02be35b7-c737-459f-9bd2-9947d1e54c55",
-      "credentials": {
-        "smtp": {
-          "id": "cAL0FtZL8kQWPeYe",
-          "name": "Credencial E-mail"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -901,15 +740,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        2144,
-        800
+        2800,
+        2608
       ],
-      "id": "a46da87e-7a2f-49f6-98a8-cad945fcd731",
+      "id": "c7367822-fb19-47a5-a622-fac5107bd1aa",
       "name": "Clear sheet1",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "sUNRrZy9VSndkdeJ",
-          "name": "API sheets"
+          "id": "pYNJtsCw8pOpm1uG",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -937,10 +776,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1488,
-        800
+        2144,
+        2608
       ],
-      "id": "99c54798-91bf-4f63-9341-f64e589232de",
+      "id": "f30eb182-0de6-4def-9d48-555769800f13",
       "name": "Edit Fields6"
     },
     {
@@ -951,10 +790,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1056,
-        800
+        1712,
+        2608
       ],
-      "id": "d9af87bd-48b4-40a4-a1a2-92ecaa72e70f",
+      "id": "1948d8c5-9c6a-410b-86f3-52613b6149fb",
       "name": "Split Out1"
     },
     {
@@ -964,10 +803,10 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        1264,
-        800
+        1920,
+        2608
       ],
-      "id": "2f02ee99-f0d3-46df-a75e-363aa97c0659",
+      "id": "916e9a1d-9c57-4325-bd79-51d3999704e5",
       "name": "Limit1"
     },
     {
@@ -993,15 +832,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        848,
-        800
+        1504,
+        2608
       ],
-      "id": "adfca164-69ab-4fd8-80f9-413449b83f57",
+      "id": "003a4dec-a9e6-492b-b839-1dec93f4de59",
       "name": "Pega ID e o Link do arquivo1",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "I4fhlQza0y1XAD4w",
-          "name": "API google drive"
+          "id": "RBxsHzyyYEpOuiLu",
+          "name": "Google Drive account"
         }
       }
     },
@@ -1028,15 +867,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1712,
-        800
+        2368,
+        2608
       ],
-      "id": "36465423-2e67-454d-986a-f34bc2bea34b",
+      "id": "4e59c719-6a89-42b0-a2be-467d97eea286",
       "name": "Busca o arquivo1",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "I4fhlQza0y1XAD4w",
-          "name": "API google drive"
+          "id": "RBxsHzyyYEpOuiLu",
+          "name": "Google Drive account"
         }
       }
     },
@@ -1047,10 +886,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -256,
-        608
+        400,
+        2416
       ],
-      "id": "d40078c1-2abf-46fc-85f0-ecd367aaba9b",
+      "id": "35907f8f-8d01-4b2b-95e2-f88b7ee5c2d8",
       "name": "Loop Over Items1"
     },
     {
@@ -1082,37 +921,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -48,
-        800
+        608,
+        2608
       ],
-      "id": "ffb78600-ec2f-4c1c-ab12-b6311f375896",
+      "id": "610a88eb-3527-4db8-83a2-ecdc67d64aa4",
       "name": "Edit Fields7"
-    },
-    {
-      "parameters": {
-        "fromEmail": "joaopedro.mlima9@gmail.com",
-        "toEmail": "joaopedro.mlima9@gmail.com",
-        "subject": "Alguel de lojas ",
-        "html": "O aluguel das filiais já foi enviado ",
-        "options": {
-          "appendAttribution": false
-        }
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        -16,
-        480
-      ],
-      "id": "bd149e52-c9e5-447e-8c12-b2b3569049bd",
-      "name": "Send email3",
-      "webhookId": "1eb4a079-8009-472c-868b-cfc01da9967e",
-      "credentials": {
-        "smtp": {
-          "id": "cAL0FtZL8kQWPeYe",
-          "name": "Credencial E-mail"
-        }
-      }
     },
     {
       "parameters": {
@@ -1123,10 +936,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -544,
-        -64
+        112,
+        1744
       ],
-      "id": "79f4d534-57df-4940-a138-48aafe368a6e",
+      "id": "7e9ab9ed-6478-40c4-bae9-575ad5c464b4",
       "name": "Sticky Note3"
     },
     {
@@ -1138,10 +951,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        144,
-        80
+        800,
+        1888
       ],
-      "id": "649d708f-7a98-4f26-b75d-f8f78671f69d",
+      "id": "8a3f86cf-d306-4a57-b040-e62e8e1f1bce",
       "name": "Sticky Note4"
     },
     {
@@ -1153,10 +966,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        784,
-        112
+        1440,
+        1920
       ],
-      "id": "02782522-d929-44c1-b518-64f112fbbba6",
+      "id": "6ea66cca-ded2-4ffe-913c-b59d34d25e25",
       "name": "Sticky Note5"
     },
     {
@@ -1168,11 +981,80 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1648,
-        96
+        2304,
+        1904
       ],
-      "id": "b656dd2c-f183-4e01-8a6e-a6148b7ecfe4",
+      "id": "c009c1b9-822b-4b8a-8a7f-bf60b470776f",
       "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "sendTo": "joaopedro.mlima9@gmail.com",
+        "subject": "Alguel de lojas ",
+        "message": "O aluguel das filiais já foi enviado ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        2304
+      ],
+      "id": "c7a7d8a5-0ba9-42eb-a783-c9dad4dc7cc1",
+      "name": "Send a message",
+      "webhookId": "657a9238-206b-4d36-8667-5b035016f91d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zAJHLyiZJO2Vm6S2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "joaopedro.mlima9@gmail.com",
+        "subject": "=Aluguel da {{ $('Edit Fields7').item.json['Nome da loja'] }}",
+        "message": "=Bom dia!\n\n<br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        2608
+      ],
+      "id": "c6155af3-5e29-456c-8f90-0a1895979726",
+      "name": "Send a message1",
+      "webhookId": "a1b59b16-586f-4c96-a5a9-54cc833b7ec6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zAJHLyiZJO2Vm6S2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "joaopedro.mlima9@gmail.com",
+        "subject": "=Aluguel da {{ $('Edit Fields5').item.json['Nome da loja'] }}",
+        "message": "=Bom dia!  <br><br>Segue em anexo a planilha do aluguel referente ao mês {{ String(($now).month).padStart(2, \"0\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        2032
+      ],
+      "id": "6463e194-eedf-4ce6-9f2e-7c252d44e2a0",
+      "name": "Send a message2",
+      "webhookId": "2e01bbd2-bc61-448a-94ce-91fa89aa11d9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zAJHLyiZJO2Vm6S2",
+          "name": "Gmail account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -1293,22 +1175,6 @@
         ]
       ]
     },
-    "Code in JavaScript1": {
-      "main": [
-        []
-      ]
-    },
-    "Send email": {
-      "main": [
-        [
-          {
-            "node": "Clear sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Edit Fields2": {
       "main": [
         [
@@ -1357,18 +1223,7 @@
       "main": [
         [
           {
-            "node": "Send email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Microsoft SQL3": {
-      "main": [
-        [
-          {
-            "node": "Append row in sheet3",
+            "node": "Send a message2",
             "type": "main",
             "index": 0
           }
@@ -1453,17 +1308,6 @@
         ]
       ]
     },
-    "Send email2": {
-      "main": [
-        [
-          {
-            "node": "Clear sheet1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Clear sheet1": {
       "main": [
         [
@@ -1523,7 +1367,7 @@
       "main": [
         [
           {
-            "node": "Send email2",
+            "node": "Send a message1",
             "type": "main",
             "index": 0
           }
@@ -1534,7 +1378,7 @@
       "main": [
         [
           {
-            "node": "Send email3",
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
@@ -1569,25 +1413,47 @@
           }
         ]
       ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "c975f9f7-b30d-4246-9797-66e5622ade40",
+  "versionId": "0692a565-0f10-445c-a3b0-4ec1fccf1ce5",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "c9ac0336281178410ae1caf9c0c4bc6510509f0f05a469f30c634bd9ecc77f35"
+    "instanceId": "2efdf59d22b01f5b3cc02c6e5343efb0018294d35df8715600aeda534f49f95d"
   },
-  "id": "Ks5xdnTg-KJtrDDLIlQwj",
+  "id": "qee_XF4eS9zId0stSbfnh",
   "tags": [
     {
-      "updatedAt": "2026-02-10T01:45:20.214Z",
-      "createdAt": "2026-02-10T01:45:20.214Z",
-      "id": "v48g6gNjIwancaTM",
-      "name": "Aluguel"
+      "name": "Aluguel",
+      "id": "3uP537NpIgXLCVr5",
+      "updatedAt": "2026-03-19T02:30:10.162Z",
+      "createdAt": "2026-03-19T02:30:10.162Z"
     }
   ]
 }
